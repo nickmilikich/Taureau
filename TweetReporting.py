@@ -173,6 +173,12 @@ def get_output(company, dates, num_tweets):
 	return output
 
 
+# The main method for this script
+# For just the company Tesla, it collects the most repeated tweets from the days on which the predicted
+# stock movement of Tesla was high.
+# The number of unique tweets to report for each day, and the threshold for "high" predicted stock movement,
+# can be specified using command line arguments, but are by default 15 and 0.1.
+# The results are written to the file SignificantEvents.txt
 def main(argv):
 
 	companies = ["Tesla"] #["Apple", "Google", "Tesla", "Facebook", "Intel", "Tmobile", "Amazon"]

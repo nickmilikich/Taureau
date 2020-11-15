@@ -5,6 +5,7 @@ library(forecast)
 library(ggplot2)
 library(readxl)
 
+# Gets the stock history for each company from Yahoo finance
 getSymbols("AAPL")
 getSymbols("GOOG")
 getSymbols("TSLA")
@@ -14,6 +15,7 @@ getSymbols("TMUS")
 getSymbols("AMZN")
 getSymbols("DJI")
 
+# Process them to the correct time frame
 start = "2020-03-05"
 end = "2020-04-26"
 apple = window(AAPL$AAPL.Adjusted, start = start, end = end)
@@ -25,6 +27,8 @@ tmo = window(TMUS$TMUS.Adjusted, start = start, end = end)
 amazon = window(AMZN$AMZN.Adjusted, start = start, end = end)
 djia = window(DJI$DJI.Adjusted, start = start, end = end)
 
+# Create a time series for the percent movement in each stock price
+# for each company for each day
 apple.pdiff = apple
 for (i in 2:length(apple))
   apple.pdiff[i] = (as.numeric(apple[i]) - as.numeric(apple[i-1])) / as.numeric(apple[i-1])
@@ -65,6 +69,8 @@ for (i in 2:length(djia))
   djia.pdiff[i] = (as.numeric(djia[i]) - as.numeric(djia[i-1])) / as.numeric(djia[i-1])
 djia.pdiff = window(djia.pdiff, start = time(djia.pdiff[2]))
 
+# Create time series for the corrected movement for each company, which
+# subtracts the DJIA movement from the company movement
 apple.pdiff.corrected = apple.pdiff - djia.pdiff
 google.pdiff.corrected = google.pdiff - djia.pdiff
 tesla.pdiff.corrected = tesla.pdiff - djia.pdiff
@@ -73,6 +79,7 @@ intel.pdiff.corrected = intel.pdiff - djia.pdiff
 tmo.pdiff.corrected = tmo.pdiff - djia.pdiff
 amazon.pdiff.corrected = amazon.pdiff - djia.pdiff
 
+# Visualization
 dat = cbind(apple.pdiff, google.pdiff, tesla.pdiff, facebook.pdiff, intel.pdiff, tmo.pdiff, amazon.pdiff, djia.pdiff)
 colnames(dat) = c("Apple", "Google", "Tesla", "Facebook", "Intel", "T-Mobile", "Amazon", "DJIA")
 autoplot(dat, facets = FALSE)
@@ -94,7 +101,7 @@ tesla.sent$Date = as.Date(tesla.sent$Date)
 tesla.sent = xts(x = cbind(tesla.sent$Polarity, tesla.sent$Subjectivity, tesla.sent$`Aggregate Score`), order.by = tesla.sent$Date)
 colnames(tesla.sent) = c("Polarity", "Subjectivity", "Aggregate.Score")
 
-# Plot
+# Visualization
 
 autoplot(cbind(scale(tesla.pdiff.corrected), scale(tesla.sent)), facets = FALSE)
 
@@ -109,8 +116,11 @@ colnames(df) = c("Tesla Stock Movement", "Subjectivity")
 autoplot(df, facets = FALSE)
 
 
-# Fit models
+# Fit predictive models for Tesla
 
+# Define an accuracy function
+# Accuracy is based on the accurate direction of predicted movement,
+# as defined further in the report
 acc = function(dat)
 {
   sum = 0
@@ -131,6 +141,7 @@ acc = function(dat)
   return(sum / length(dat[,1]))
 }
 
+# Prepare data
 tesla.comb = cbind(tesla.pdiff.corrected, tesla.sent)
 colnames(tesla.comb)[1] = "index"
 cor(tesla.comb$index, tesla.comb$Polarity, use = "pairwise.complete.obs")
@@ -148,6 +159,8 @@ Subjectivity.3 = c(NA, NA, NA, as.vector(tesla.comb$Subjectivity[1:(days-3)]))
 tesla.matrix = cbind(tesla.matrix, Polarity.1, Polarity.2, Polarity.3, Subjectivity.1, Subjectivity.2, Subjectivity.3)
 tesla.train = window(xts(tesla.matrix, order.by = as.Date(rownames(tesla.matrix))), end = "2020-4-10")
 tesla.test = window(xts(tesla.matrix, order.by = as.Date(rownames(tesla.matrix))), start = "2020-4-11")
+
+# Fit model on training data
 tesla.lm = lm(index ~ Polarity + Subjectivity, data = tesla.matrix)
 summary(tesla.lm)
 tesla.lm = lm(index ~ Polarity.1 + Polarity.2 + Polarity.3 + Subjectivity.1 + Subjectivity.2 + Subjectivity.3, data = tesla.train)
@@ -165,6 +178,8 @@ test = cbind(pred.move, window(tesla.pdiff.corrected, start = "2020-4-11"))
 test = na.omit(test)
 colnames(test) = c("pred.move", "truth")
 print(acc(test))
+
+# Test model on test data
 pred = predict(tesla.lm, newdata = tesla.matrix)
 df = cbind(xts(pred, order.by = as.Date(rownames(tesla.matrix))), tesla.pdiff.corrected)
 colnames(df) = c("Predicted Stock Movement", "Actual Stock Movement")
@@ -211,7 +226,7 @@ print(cor(tesla.comb.swa$index, tesla.comb.swa$Aggregate.Score, use = "pairwise.
 
 # Plot
 
-  # Plotting negative because the correlation is negative
+# Plotting negative because the correlation is negative
 df = cbind(scale(tesla.pdiff.corrected), -scale(tesla.comb.swa$Aggregate.Score))
 colnames(df) = c("Tesla Stock Movement", "-Aggregate Score")
 autoplot(df, facets = FALSE)

@@ -17,7 +17,7 @@ def read(f, flag):
 			return words[1]
 	return ""
 
-
+# Authenticates the tweepy API with my credentials, which are given in another file Keys.dat
 def authenticate():
 
 	key_file = open("Keys.dat", 'r')
@@ -33,6 +33,7 @@ def authenticate():
 	return tweepy.API(auth)
 
 
+# Turns tweet text into plaintext; gets rid of emojis, newlines, etc.
 def process_text(text):
 	ret = ""
 	for c in text:
@@ -45,6 +46,7 @@ def process_text(text):
 	#return "".join(c for c in text if c in wanted)
 
 
+# Converts a tweet to appropriate json form
 def to_json(tweet):
 	ret = "{"
 	ret = ret + "\"text\": \"" + process_text(tweet.text) + "\", "
@@ -65,6 +67,8 @@ def to_json(tweet):
 	return ret
 
 
+# Prints collected tweets search_results into a file with name format
+# company-year-month-day.json
 def print_to_file(search_results, company, date):
 	filename = company + "-" + str(date.year) + "-" + str(date.month) + "-" + str(date.day) + ".json"
 	output_file = open(filename, 'w', encoding = "utf-8")
@@ -73,6 +77,11 @@ def print_to_file(search_results, company, date):
 	output_file.close()
 
 
+# Collects tweets fitting search criteria for company from the start date to end date
+# Stores them in a file named with the company and date
+# Note some companies follow different criteria - T-mobile could be written in several different forms,
+# the search results for Intel needed to tag the company to differentiate it from the abbreviation for
+# intelligence, and all other companies are searched for using a hashtag
 def collect_tweets(api, company, start, end):
 
 	max_count = 10000
@@ -106,6 +115,7 @@ def collect_tweets(api, company, start, end):
 		date = date + datetime.timedelta(days = 1)
 
 
+# Processes the command line arguments with the beginning and ending date
 def assign_args(argv):
 
 	if len(sys.argv) != 5:
@@ -114,6 +124,9 @@ def assign_args(argv):
 	return (int(argv[1]), int(argv[2]), int(argv[3]), int(argv[4]))
 
 
+# Main method
+# This script collects tweets fitting critera for each company within the specified date range
+# and prints to a file
 def main(argv):
 
 	(start_month, start_date, end_month, end_date) = assign_args(argv)
