@@ -16,7 +16,7 @@ The Taureau framework consists of four parts:
 
 To run the analysis done in our project (for Tesla for the period of March-April 2020), follow the instructions for each task:
 - Tweet collection: Run GetTweets.py using four command line arguments specifying the beginning and end dates to be collected, inclusive, in the form of beginning month/date, end month/date. For example, to collect from March 6 to March 11, 2020, one would execute the code 'python3 GetTweets.py 3 6 3 11'.
-- Sentiment analysis: [] The printed scores can be collected in an excel file SentimentScoresAverage.xlsx (included in this submission).
+- Sentiment analysis: Run GenerateSentiment.py. The printed scores can be collected in an excel file SentimentScoresAverage.xlsx (included in this submission).
 - Stock movement analysis: Be sure that the steps for sentiment analysis have been followed and that SentimentScoresAverage.xlsx is in the same directory. Run StockAnalysis.R; Tesla-predict.txt will be generated as a result.
 - Tweet reporting: Be sure that the steps for stock movement analysis have been followed and that Tesla-predict.txt is in the same directory. Run TweetReporting.py; command line arguments can be passed to this program, with the first a floating point number specifying the threshold for movement (ex. 0.1), and the second an integer specifying the number of tweets to be reported for each day (ex. 15). If either argument is not provided then the defaults will be used. SignificantEvents.txt will be generated as a result.
 
