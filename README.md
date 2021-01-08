@@ -1,13 +1,7 @@
 # Taureau
 ## A Stock Market Movement Inference Framework Based on Twitter Sentiment Analysis
 
-Taureau: A Stock Market Movement Inference Framework Based on Twitter Sentiment Analysis
-
-Joshua Johnson, Nick Milikich, & Md Tahmid Rashid
-
-CSE 60437 Social Sensing & Cyber-Physical Systems
-
-May 4, 2020
+Joshua Johnson, Nick Milikich, & Md Tahmid Rashid / CSE 60437 Social Sensing & Cyber-Physical Systems / May 4, 2020
 
 
 This project implements Taureau, a framework for inferring stock market movement from Twitter sentiment analysis.
